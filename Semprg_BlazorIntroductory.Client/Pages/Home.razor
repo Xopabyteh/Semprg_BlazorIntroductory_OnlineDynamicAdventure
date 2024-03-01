@@ -1,7 +1,37 @@
 ﻿@page "/"
+@using Semprg_BlazorIntroductory.Contracts
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Online Dynamic Adventure</PageTitle>
 
-<h1>Hello, world!</h1>
+<figure>
+    <figcaption>Online Dynamic Adventure!</figcaption>
+    @if (rootNode is not null)
+    {
+        <ul class="tree">
+            <StoryTreeNode Node='rootNode.Value' />
+        </ul>
+        <button @onclick="Restart">Restart</button>
+    }
+</figure>
 
-Welcome to your new app.
+@code
+{
+    [Inject] public required HttpClient HttpClient { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
+
+    [Parameter] public required StoryActionResponse RootAction { get; set; }
+
+    private StoryNodeResponse? rootNode = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        rootNode = await HttpClient.GetFromJsonAsync<StoryNodeResponse>("/story-node?nodeId=1");
+
+        StateHasChanged();
+    }
+
+    private void Restart()
+    {
+        NavigationManager.Refresh();
+    }
+}

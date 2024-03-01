@@ -13,7 +13,7 @@ public class GameTreeRepository : IGameTreeRepository
         _dbContext = dbContext;
     }
 
-    public async Task<string?> AddStoryAction(int toNodeId, string actionContent, string consequenceContent)
+    public async Task<StoryAction?> AddStoryAction(int toNodeId, string actionContent, string consequenceContent)
     {
         //Validate (I know domain validation shouldn't belong here, but it's just a quick project)
         //Check if the node exists
@@ -23,12 +23,12 @@ public class GameTreeRepository : IGameTreeRepository
             .SingleOrDefaultAsync(s => s.Id == toNodeId);
 
         if (toNode is null)
-            return "The node to add the new story to doesn't exist.";
+            return null;
 
         //Check if the node has reached max actions
         if (toNodeId != 1 //Doesn't apply to root node
             && toNode.HasReachedMaxActions)
-            return "The node has reached the maximum number of children.";
+            return null;
 
         //Add action to node
         var consequence = new StoryNode()
@@ -42,7 +42,7 @@ public class GameTreeRepository : IGameTreeRepository
             Consequence = consequence
         };
 
-        await _dbContext.StoryActions.AddAsync(newAction);
+        var actionEntityEntry = await _dbContext.StoryActions.AddAsync(newAction);
         await _dbContext.StoryNodes.AddAsync(consequence);
 
         //Update the parent node (Check whether it has reached max actions)
@@ -53,7 +53,7 @@ public class GameTreeRepository : IGameTreeRepository
         }
 
         await _dbContext.SaveChangesAsync();
-        return null; //Success
+        return actionEntityEntry.Entity; //Success
     }
 
     public async Task<List<StoryAction>> GetStoryActions(int ofNodeId)
@@ -63,5 +63,13 @@ public class GameTreeRepository : IGameTreeRepository
             .Include(a => a.Consequence)
             .Where(a => a.StoryNodeParent!.Id == ofNodeId)
             .ToListAsync();
+    }
+
+    public async Task<StoryNode?> GetStoryNodeById(int nodeId)
+    {
+        return await _dbContext.StoryNodes
+            .Include(s => s.ActionsChildren)
+            .ThenInclude(a => a.Consequence)
+            .SingleOrDefaultAsync(s => s.Id == nodeId);
     }
 }

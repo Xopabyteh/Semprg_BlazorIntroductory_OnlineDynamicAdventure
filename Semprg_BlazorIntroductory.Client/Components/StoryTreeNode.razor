@@ -1,0 +1,101 @@
+﻿@using Semprg_BlazorIntroductory.Contracts
+<li>
+    <ul>
+        <li>
+            <span class='node__header'>@Node.Content</span>
+            <ul>
+                @if (chosenAction is null)
+                {
+                    @foreach (var possibleAction in possibleActions.StoryActions)
+                    {
+                        <li>
+                            <button @onclick="async () => await HandleActionClick(possibleAction)">@possibleAction.Content</button>
+                            @if (chosenActionConsequence is not null)
+                            {
+                                <ul>
+                                    <StoryTreeNode Node='chosenActionConsequence.Value'/>
+                                </ul>
+                            }
+                        </li>
+                    }
+                    @if (!HasReachedMaxActions)
+                    {
+                        <li>
+                            <button @onclick="HandleToggleAddActionClick">@(addActionOpen ? "-" : "Continue the story!")</button>
+                            @if (addActionOpen)
+                            {
+                                <input @bind="addActionContent" type='text' class='node__header' placeholder='What do you do?'/>
+                                <ul>
+                                    <li>
+                                        <input @bind="addActionConsequenceContent" type='text' class='node__header' placeholder='What happens next?'/>
+                                    </li>
+                                </ul>
+                                <button @onclick="async () => await HandleAddActionClick()">Add</button>
+                            }
+                        </li>
+                    }
+                }
+                else
+                {
+                    <ul>
+                        <StoryTreeNode Node='chosenActionConsequence!.Value'/>
+                    </ul>
+                }
+            </ul>
+        </li>
+    </ul>
+</li>
+
+@code {
+    [Inject] public required HttpClient HttpClient { get; set; }
+
+    // [Parameter] public required StoryActionResponse Action { get; set; }
+    [Parameter] public required StoryNodeResponse Node { get; set; }
+    private bool HasReachedMaxActions => possibleActions.StoryActions.Count >= StoryNodeResponse.MaxNonRootActionsPerNode && Node.NodeId != 1; //This is horrible ;-D
+
+    // private bool actionChosen = false;
+    private StoryActionsResponse possibleActions = new(new());
+
+    private bool addActionOpen = false;
+    private string addActionContent = "";
+    private string addActionConsequenceContent = "";
+
+    private StoryActionResponse? chosenAction = null;
+    private StoryNodeResponse? chosenActionConsequence = null;
+
+    private async Task HandleActionClick(StoryActionResponse action)
+    {
+        chosenAction = action;
+        chosenActionConsequence = action.Consequence;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        possibleActions = await HttpClient.GetFromJsonAsync<StoryActionsResponse>($"/story-actions?ofNodeId={Node.NodeId}");
+
+        StateHasChanged();
+    }
+
+    private void HandleToggleAddActionClick()
+    {
+        addActionOpen = !addActionOpen;
+        StateHasChanged();
+    }
+    private async Task HandleAddActionClick()
+    {
+        var request = new AddStoryActionRequest(Node.NodeId, addActionContent, addActionConsequenceContent);
+        var response = await HttpClient.PostAsJsonAsync("/add-action", request);
+
+        response.EnsureSuccessStatusCode();
+        
+        var addedAction = await response.Content.ReadFromJsonAsync<StoryActionResponse>();
+        possibleActions.StoryActions.Add(addedAction);
+
+        addActionContent = "";
+        addActionConsequenceContent = "";
+        addActionOpen = false;
+
+        StateHasChanged();
+    }
+}

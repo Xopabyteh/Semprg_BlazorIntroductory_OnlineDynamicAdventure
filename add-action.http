@@ -3,7 +3,7 @@ POST {{host}}/add-action
 Content-Type: application/json
 
 {
-    "toNodeId": 1,
-    "actionContent": "You wake up",
-    "consequenceContent": "Oh... you woke up"
+    "toNodeId": 2,
+    "actionContent": "You go to the bar",
+    "consequenceContent": "You are at the bar"
 }
