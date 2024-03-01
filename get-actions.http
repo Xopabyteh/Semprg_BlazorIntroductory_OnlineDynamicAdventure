@@ -1,0 +1,4 @@
+@host=https://localhost:7274
+@ofNodeId=1
+
+GET {{host}}/story-actions?ofNodeId={{ofNodeId}}

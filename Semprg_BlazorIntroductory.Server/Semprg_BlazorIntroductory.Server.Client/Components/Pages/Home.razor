@@ -1,0 +1,23 @@
+﻿@page "/"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Home</PageTitle>
+
+<section>
+    <h1>Messages</h1>
+    <ul>
+        @foreach (var message in _messages)
+        {
+            <li>
+                <sub>@message.Sender</sub>
+                <span>:</span>
+                <span>@message.Content</span>
+            </li>
+        }
+    </ul>
+</section>
+<button @onclick="async () => await Handle_JoinClick()">Join</button>
+<InputText @bind-Value="messageToSend" DisplayName='Message'/>
+<button @onclick="async () => await Handle_SendClick()">Send</button>
+
+

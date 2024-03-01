@@ -1,0 +1,9 @@
+@host=https://localhost:7274
+POST {{host}}/add-action 
+Content-Type: application/json
+
+{
+    "toNodeId": 1,
+    "actionContent": "You wake up",
+    "consequenceContent": "Oh... you woke up"
+}
