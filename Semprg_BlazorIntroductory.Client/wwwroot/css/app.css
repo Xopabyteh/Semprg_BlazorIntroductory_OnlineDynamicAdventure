@@ -95,97 +95,152 @@ a, .btn-link {
         content: var(--blazor-load-percentage-text, "Loading");
     }
 
+/*CSS reset*/
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
 
-/*App custom css*/
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-/* It's supposed to look like a tree diagram */
-.tree, .tree ul, .tree li {
-    list-style: none;
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, button {
     margin: 0;
     padding: 0;
-    position: relative;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+body {
+    line-height: 1;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+        content: '';
+        content: none;
+    }
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/*App custom CSS*/
+#app {
+    width: 100vw;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+
+    font-family: "Dancing Script", cursive;
+}
+
+
+figcaption {
+    font-size: 2rem;
 }
 
 .tree {
-    margin: 0 0 1em;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.tree, .tree ul {
-    display: table;
-}
+    .tree ul {
+        display: flex;
+        gap: 0.5rem;
+        align-items: baseline;
+    }
 
-.tree ul {
-    width: 100%;
-}
+        .tree ul li {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-block: 0.5rem;
+        }
 
-.tree li {
-    display: table-cell;
-    padding: .5em 0;
-    vertical-align: top;
+.line__what__happens__next {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.75rem;
 }
-/* _________ */
-.tree li:before {
-    outline: solid 1px #666;
-    content: "";
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-.tree li:first-child:before {
-    left: 50%;
-}
-
-.tree li:last-child:before {
-    right: 50%;
-}
-
-.tree code, .tree .node__header {
-    border: solid .1em #666;
-    border-radius: .2em;
+.line__what__happens__next::before,
+.line__what__happens__next::after {
+    content: '';
+    display: block;
+    width: 67px;
     display: inline-block;
-    margin: 0 .2em .5em;
-    padding: .2em .5em;
+
+    border-top: solid 1px #ccc;
+
     position: relative;
-}
-/* If the tree represents DOM structure */
-.tree code {
-    font-family: monaco, Consolas, 'Lucida Console', monospace;
+    top: -0.25rem;
+
+    margin-inline: 5px;
 }
 
-/* | */
-.tree ul:before,
-.tree code:before,
-.tree .node__header:before {
-    outline: solid 1px #666;
-    content: "";
-    height: .5em;
-    left: 50%;
-    position: absolute;
+.story__node__content {
+    animation: Appear 0.8s;
 }
 
-.tree ul:before {
-    top: -.5em;
+.story__action__content {
+    animation: Appear 0.5s;
 }
 
-.tree code:before,
-.tree .node__header:before {
-    top: -.55em;
+@keyframes Appear {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
 }
 
-/* The root node doesn't connect upwards */
-.tree > li {
-    margin-top: 0;
+
+    button.story__action__content {
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+
+    }
+
+.story__continue__button {
+    color: gray;
+    animation: Appear 1s;
 }
 
-.tree > li:before,
-.tree > li:after,
-.tree > li > code:before,
-.tree > li > .node__header:before {
-    outline: none;
+
+button {
+    background-color: transparent;
+    color: #0777FF;
+    transition: transform 0.1s;
 }
+    button:hover {
+        cursor: pointer;
+        transform: skewX(-10deg);
+    }

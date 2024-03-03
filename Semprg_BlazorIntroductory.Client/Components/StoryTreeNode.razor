@@ -2,32 +2,30 @@
 <li>
     <ul>
         <li>
-            <span class='node__header'>@Node.Content</span>
+            <span class='story__node__content'>@Node.Content</span>
+            @if (chosenAction is null)
+            {
+                <div class='line__what__happens__next'>What happens next?</div>
+            }
             <ul>
-                @if (chosenAction is null)
+                @if (chosenAction is null) //No action chosen yet
                 {
-                    @foreach (var possibleAction in possibleActions.StoryActions)
+                    @foreach (var possibleAction in possibleActions.StoryActions) //Story action options
                     {
                         <li>
-                            <button @onclick="async () => await HandleActionClick(possibleAction)">@possibleAction.Content</button>
-                            @if (chosenActionConsequence is not null)
-                            {
-                                <ul>
-                                    <StoryTreeNode Node='chosenActionConsequence.Value'/>
-                                </ul>
-                            }
+                            <button class='story__action__content' @onclick="async () => await HandleActionClick(possibleAction)">@possibleAction.Content</button>
                         </li>
                     }
-                    @if (!HasReachedMaxActions)
+                    @if (!HasReachedMaxActions) //Continue the story button
                     {
                         <li>
-                            <button @onclick="HandleToggleAddActionClick">@(addActionOpen ? "-" : "Continue the story!")</button>
+                            <button class='story__continue__button' @onclick="HandleToggleAddActionClick">@(addActionOpen ? "-" : "Continue the story!")</button>
                             @if (addActionOpen)
                             {
-                                <input @bind="addActionContent" type='text' class='node__header' placeholder='What do you do?'/>
+                                <input @bind="addActionContent" type='text' class='story__action__content' placeholder='What do you do?'/>
                                 <ul>
                                     <li>
-                                        <input @bind="addActionConsequenceContent" type='text' class='node__header' placeholder='What happens next?'/>
+                                        <input @bind="addActionConsequenceContent" type='text' class='story__node__content' placeholder='What happens next?'/>
                                     </li>
                                 </ul>
                                 <button @onclick="async () => await HandleAddActionClick()">Add</button>
@@ -35,10 +33,15 @@
                         </li>
                     }
                 }
-                else
+                else //We chose an action
                 {
                     <ul>
-                        <StoryTreeNode Node='chosenActionConsequence!.Value'/>
+                        <li>
+                            <span class='story__action__content'>@chosenAction.Value.Content</span>
+                            <ul>
+                                <StoryTreeNode Node='chosenActionConsequence!.Value'/>
+                            </ul>
+                        </li>
                     </ul>
                 }
             </ul>
@@ -88,7 +91,7 @@
         var response = await HttpClient.PostAsJsonAsync("/add-action", request);
 
         response.EnsureSuccessStatusCode();
-        
+
         var addedAction = await response.Content.ReadFromJsonAsync<StoryActionResponse>();
         possibleActions.StoryActions.Add(addedAction);
 
@@ -96,6 +99,15 @@
         addActionConsequenceContent = "";
         addActionOpen = false;
 
+        StateHasChanged();
+    }
+
+    public async Task RestartAsync()
+    {
+        await OnInitializedAsync();
+
+        chosenAction = null;
+        chosenActionConsequence = null;
         StateHasChanged();
     }
 }

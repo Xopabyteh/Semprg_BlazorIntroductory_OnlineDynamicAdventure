@@ -3,16 +3,19 @@
 
 <PageTitle>Online Dynamic Adventure</PageTitle>
 
-<figure>
-    <figcaption>Online Dynamic Adventure!</figcaption>
-    @if (rootNode is not null)
-    {
-        <ul class="tree">
-            <StoryTreeNode Node='rootNode.Value' />
-        </ul>
-        <button @onclick="Restart">Restart</button>
-    }
-</figure>
+<div>
+    <figure>
+        <figcaption>Online Dynamic Adventure!</figcaption>
+        @if (rootNode is not null)
+        {
+            <ul class="tree">
+                <StoryTreeNode @ref="rootNodeElement" Node='rootNode.Value' />
+            </ul>
+            <button @onclick="Restart">Restart</button>
+        }
+    </figure>
+</div>
+
 
 @code
 {
@@ -22,6 +25,7 @@
     [Parameter] public required StoryActionResponse RootAction { get; set; }
 
     private StoryNodeResponse? rootNode = null;
+    private StoryTreeNode rootNodeElement = null!; //@ref
 
     protected override async Task OnInitializedAsync()
     {
@@ -30,8 +34,11 @@
         StateHasChanged();
     }
 
-    private void Restart()
+    private async Task Restart()
     {
-        NavigationManager.Refresh();
+        if (rootNode is null)
+            return;
+
+        await rootNodeElement.RestartAsync();
     }
 }
